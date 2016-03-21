@@ -2,42 +2,75 @@ import GammaTones as gt
 import numpy as np
 import matplotlib.pyplot as plt
 import thLib.sounds as thSound
-
-sampleRate = 16000
-freq = [50, 120]
-amp = [1, 0.4]
-t = np.arange(0,10,1./sampleRate)
-data =  amp[0]*np.sin(2*np.pi*freq[0]*t) + amp[1]*np.sin(2*np.pi*freq[1]*t) + np.random.randn(len(t))
-snd = thSound.Sound('./SoundData/tiger.wav')
-
-#ata = np.zeros((sampleRate*25e-3))     # create a 25ms input
-#data[[1, 100, 200, 300]] = 1    # make a click train
-data[0] = 1
+import os
+import scipy
 
 
-(forward,feedback,cf,ERB,B) = gt.GammaToneMake(sampleRate, 5, 1, 
-                                              8000, 
-                                              'moore')
+def calculateStimuli(data, sampleRate, nElectrodes=21, lowFreq=200,highFreq=5000):
+    gammaMethod = 'moore'
+    (forward,feedback,cf,ERB,B) = gt.GammaToneMake(sampleRate,
+                                                   nElectrodes,
+                                                   lowFreq,
+                                                   highFreq,
+                                                   gammaMethod)
+    gammaResponses = gt.GammaToneApply(data, forward, feedback) 
+    return gammaResponses
 
+def simulateSound(stimulationData):
+    soundData = np.sum(stimulationData,0)
+    return soundData
 
-#for nC in range(100):
-#    print(cf[nC],':',cf[nC]-ERB[nC]/2,'bis',cf[nC]+ERB[nC]/2)
+def writeSoundToFile(outData, sampleRate, outFileName=None):
+    
+    if not outData[0].dtype == np.dtype('int16'):
+        defaultAmp = 2**13
+        outData *= defaultAmp / np.max(outData)
+        outData = np.int16(outData)  
+        
+    ### this section is a copy-paste from thLib's writeWav, as it can't handle stereo sound 
+    if outFileName is None:
+        (outFile , outDir) = ui.savefile('Write sound to ...', '*.wav')            
+        if outFile == 0:
+            print('Output discarded.')
+            return 0
+        else:
+            outFileName = os.path.join(outDir, outFile)
+    else:
+        outDir = os.path.abspath(os.path.dirname(outFileName))
+        outFile = os.path.basename(outFileName)
+    #        outFileName = tkFileDialog.asksaveasfilename()
+
+    scipy.io.wavfile.write(str(outFileName), int(sampleRate), outData)
+    print('Sounddata written to ' + outFile + ', with a sample rate of ' + str(sampleRate))
+    print('OutDir: ' + outDir)
+    
+    ###    
+    
+    #ugly hack, s.t. playing stereo is possible
+    dummySnd = thSound.Sound(outFileName);
+    dummySnd.play()
+    
+    
+def main():
+    inFileName = './SoundData/tiger.wav'
+    outFileName = './tiger_out.wav'
+    
+    snd = thSound.Sound(inFileName)
+    
+    sampleRate = snd.rate
+    nElectrodes = 21
+    lowFreq = 200
+    highFreq = 5000
     
 
+    if snd.data.ndim<2:
+        snd.data = np.reshape(snd.data,(len(snd.data),1))
+    
+    soundData = np.zeros(snd.data.shape)     
+    for lrIdx in range(snd.data.shape[1]):
+        gammaResponse = calculateStimuli(snd.data[:,lrIdx], sampleRate, nElectrodes, lowFreq, highFreq)
+        soundData[:,lrIdx] = simulateSound(gammaResponse)
+    writeSoundToFile(soundData, sampleRate,outFileName)
 
-y = gt.GammaToneApply(snd.data[:,0], forward, feedback)
-
-chanId = 0
-testy = np.sum(y,0)
-snd.setData(testy, snd.rate)
-snd.play()
-plt.plot(cf,np.ones(len(cf)),'x')
-plt.plot(cf - ERB,.8*np.ones(len(cf)),'x')
-plt.plot(cf+ERB,1.2*np.ones(len(cf)),'x')
-plt.plot(0,0,'x')
-plt.plot(0,1,'x')
-
-plt.show()
-#plt.plot(np.arange(y.shape[1]),[chanId])
-#plt.show()
-
+if __name__=='__main__':
+    main()
