@@ -30,4 +30,4 @@ Pxx
 plt.plot(signal)
 plt.show()
 plt.plot(freq, Pxx)
-plt.show().l9kl
+plt.show()
