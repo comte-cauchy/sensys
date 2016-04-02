@@ -4,8 +4,6 @@ import matplotlib.pyplot as plt
 import thLib.sounds as thSound
 import os
 import scipy
-import auditory_fourier as af
-import auditory_gamma as ag
 
 
 import numpy as np
