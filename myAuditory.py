@@ -38,7 +38,7 @@ def simulateSoundSumOfSines(stimulationData, frequencies,sampleRate):
     weightedSines = np.zeros(stimulationData.shape)
     for i in range(0,nChannels):
         f = frequencies[i]    
-        sine = np.sin(np.pi*f*t)
+        sine = np.sin(2*np.pi*f*t)
         weightedSines[i] = np.multiply(sine,stimulationData[i,])
     soundData = np.sum(weightedSines,0)
     return soundData
@@ -117,9 +117,9 @@ def main():
     
     sampleRate = snd.rate
     nElectrodes = 21
-    lowFreq = 200
+    lowFreq = 100
     highFreq = 5000
-    winSize = 6 #ms
+    winSize = 25 #ms
     stepSize = .5 #ms
     winTailSize = 6 #ms 
     
