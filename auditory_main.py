@@ -16,6 +16,7 @@ def calculateStimuliGamma(data, sampleRate, nElectrodes=21, lowFreq=200,highFreq
                                                    highFreq,
                                                    gammaMethod)
     gammaResponses = gt.GammaToneApply(data, forward, feedback) 
+    gammaResponses = np.multiply(gammaResponses,gammaResponses)
     return gammaResponses,cf
 
 def calculateStimuliFourier(data, sampleRate, nElectrodes=21, lowFreq=200,highFreq=5000):
