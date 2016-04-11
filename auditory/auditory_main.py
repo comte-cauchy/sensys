@@ -5,9 +5,6 @@ import thLib.sounds as thSound
 import os
 import scipy
 
-
-import numpy as np
-import GammaTones as gt
 def calculateStimuliGamma(data, sampleRate, nElectrodes=21, lowFreq=200,highFreq=5000):
     gammaMethod = 'moore'
     (forward,feedback,cf,ERB,B) = gt.GammaToneMake(sampleRate,
@@ -143,11 +140,14 @@ def calculateWindow(data,start,sampleRate,samplesPerWindow,nOut): #Takes a data 
     
 def main():
     nElectrodes = 21
-    lowFreq = 200 #hz
+    lowFreq = 400 #hz
     highFreq = 5000 #hz
     winSize = 6 #ms
     stepSize = .5 #ms    
-    method = 'fourier' #alt: 'fourier', 'gamma'
+    
+    method = 'gamma' #alt: 'fourier', 'gamma'
+    tailFactor = 5 #only takes effect if method='gamma'. determines 
+                   #how lon
     
     inFileName = './SoundData/tiger.wav'
     #inFileName = './SoundData/vowels.wav'
@@ -162,7 +162,7 @@ def main():
     sampleRate = snd.rate    
 
     outStem, outSuffix = inFileName.rsplit('.',1)
-    outFileName = outStem + '_out.wav'    
+    outFileName = outStem + '_'+method+'_out.wav'    
         
     if method == 'gamma':
         winTailSize = 5*winSize
