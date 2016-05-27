@@ -1,0 +1,2 @@
+Max Displacement [m]: 0.000117 
+Min Displacement [m]: -0.000126

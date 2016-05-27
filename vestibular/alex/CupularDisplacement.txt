@@ -1,0 +1,3 @@
+//cupular displacement [mm]
+//min max
+-0.199061 0.193400

@@ -1,0 +1,3 @@
+//maximum acceleration [m/s^2]
+//min max
+-1.421223 2.043087

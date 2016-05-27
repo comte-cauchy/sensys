@@ -1,0 +1,2 @@
+Max Acceleration [m/s^2]: 6.870261 
+Min Acceleration [m/s^2]: -5.629895
